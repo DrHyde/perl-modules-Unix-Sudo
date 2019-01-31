@@ -7,3 +7,4 @@ lib/Unix/Sudo.pm
 Makefile.PL
 ARTISTIC.txt
 t/data-structure-on-STDOUT.t
+README
