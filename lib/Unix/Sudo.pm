@@ -24,7 +24,7 @@ Unix::Sudo - run a block as root
 
 As a normal user who can C<sudo> ...
 
-    use Unix::Sudo;
+    use Unix::Sudo qw(sudo);
 
     print `whoami`;          # shows your normal username
     sudo {
