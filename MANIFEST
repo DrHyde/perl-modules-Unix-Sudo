@@ -1,0 +1,9 @@
+MANIFEST
+t/verify-promotion-using-whoami.t
+t/compilation-failure.t
+t/pass-variables-in.t
+GPL2.txt
+lib/Unix/Sudo.pm
+Makefile.PL
+ARTISTIC.txt
+t/data-structure-on-STDOUT.t
