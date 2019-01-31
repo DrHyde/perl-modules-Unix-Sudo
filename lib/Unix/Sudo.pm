@@ -85,8 +85,6 @@ The variables that are passed through to your code are read-write, but any chang
 
 Any blessed references, tied variables, or objects that use C<overload> in those variables may not behave as you expect.  For example, a record that has been read from a database won't have an active database connection; something tied to a filehandle won't have an open filehandle; an object that uses C<overload> to make reading its value have side-effects will not have those side-effects respected in the parent process.  In general, you should use this to "promote" as little of your code as possible to run as root, and I<only> your code so that you can be as aware as possible of the preceding.
 
-It is assumed that code-refs in the calling environment may close over other variables, so code-refs are defined last when building your environment. However, if your environment contains I<multiple> code-refs I have no idea what order to define them in so if they refer to each other you're just out of luck. Similarly if a data structure that isn't itself a code-ref contains a code-ref there's nothing I can do about that. So your code might just fail to compile in the child process. The same applies to any other circular references.
-
 =head1 DEBUGGING
 
 If your code isn't behaving as you expect or is dieing then I recommend that you set UNIX_SUDO_SPILLGUTS=1 in your environment. This will cause Unix::Sudo to C<warn()> you about what it is about to execute before it does so.
@@ -135,17 +133,23 @@ This module is also free-as-in-mason software.
 
 sub sudo(&) {
     my $context = peek_my(1);
-    my $last_variables = '';
     my $code = '';
 
     my $deparse = B::Deparse->new();
+
+    # declare all the variables first, in case one of them is a code-ref
+    # that refers to one of the others
+    foreach my $variable (keys %{$context}) {
+        $code .= "my $variable;\n";
+    }
+    # now give them their values
     foreach my $variable (keys %{$context}) {
         my $value = $context->{$variable};
 
         if(substr($variable, 0, 1) eq '%') {
-            $code .= "my $variable = %{ (), do { my ".Dumper($value)."}};\n"
+            $code .= "$variable = %{ (), do { my ".Dumper($value)."}};\n"
         } elsif(substr($variable, 0, 1) eq '@') {
-            $code .= "my $variable = \@{ (), do { my ".Dumper($value)."}};\n"
+            $code .= "$variable = \@{ (), do { my ".Dumper($value)."}};\n"
         } elsif(substr($variable, 0, 1) eq '$') {
             if(
                 ref($value) eq 'REF' &&
@@ -153,11 +157,11 @@ sub sudo(&) {
             ) {
                 # save this for last in case it references variables
                 # that we haven't seen yet
-                $last_variables = "my $variable = sub ".
+                $code .= "$variable = sub ".
                     $deparse->coderef2text(${$value}).
-                    ";\n$last_variables";
+                    ";\n";
             } else {
-                $code .= "my $variable = \${ scalar do { my ".Dumper($value)."}};\n"
+                $code .= "$variable = \${ scalar do { my ".Dumper($value)."}};\n"
             }
         } else {
             die("Sorry, ".__PACKAGE__." can't cope with sigil '".
@@ -166,7 +170,7 @@ sub sudo(&) {
         }
     }
 
-    $code .= $last_variables.$deparse->coderef2text(shift);
+    $code .= $deparse->coderef2text(shift);
 
     if($ENV{UNIX_SUDO_SPILLGUTS}) { warn $code }
     
