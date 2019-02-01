@@ -35,11 +35,13 @@ As a normal user who can C<sudo> ...
 
 =head1 EXPORTS / FUNCTIONS
 
-There is one function, which can be exported if you wish but is not exported by default:
+There is one function, which can be exported if you wish but is not exported by
+default:
 
 =head2 sudo
 
-Takes a code-ref as its only argument. This can be in a variable, or as an anonymous code-ref, or a block:
+Takes a code-ref as its only argument. This can be in a variable, or as an
+anonymous code-ref, or a block:
 
     my $code = sub { 1 + 2 };
     sudo($code);
@@ -48,13 +50,19 @@ Takes a code-ref as its only argument. This can be in a variable, or as an anony
 
     sudo { 1 + 2 };
 
-That code-ref will be executed as root, with no arguments, and with as much as possible of the calling code's environment. It may return an integer value from 0 to 254. Anything else will be numified.
+That code-ref will be executed as root, with no arguments, and with as much as
+possible of the calling code's environment. It may return an integer value from
+0 to 254. Anything else will be numified.
 
-If you want to return something more complicated then I recommend that you return it on STDOUT and use L<Capture::Tiny> to retrieve it.
+If you want to return something more complicated then I recommend that you
+return it on STDOUT and use L<Capture::Tiny> to retrieve it.
 
 =head1 ERRORS
 
-A return value of 255 is special and is used to indicate that the code couldn't be compiled for some reason. When this happens the child process will spit an error message to STDERR, and the parent will die and attempt to tell you where you passed dodgy code to Unix::Sudo.
+A return value of 255 is special and is used to indicate that the code couldn't
+be compiled for some reason. When this happens the child process will spit an
+error message to STDERR, and the parent will die and attempt to tell you where
+you passed dodgy code to Unix::Sudo.
 
 See L<CAVEATS> for some hints on circumstances when this might happen.
 
@@ -69,29 +77,55 @@ Internally, your code will be de-parsed into its text form and then executed thu
         "exit(do{ $your_code_here })"
     ) >> 8;
 
-C<sudo> might have to prompt for a password. If it does, then the prompt will make it clear that this is Unix::Sudo asking for it.
+C<sudo> might have to prompt for a password. If it does, then the prompt will
+make it clear that this is Unix::Sudo asking for it.
 
-It's not just your code that is passed to the child process.  There are also a bunch of C<-I> arguments, so that it knows about any directories in the parent process's C<@INC>, and it will also get copies of all the lexical variables that are in scope in the calling code.
+It's not just your code that is passed to the child process.  There are also a
+bunch of C<-I> arguments, so that it knows about any directories in the parent
+process's C<@INC>, and it will also get copies of all the lexical variables
+that are in scope in the calling code.
 
-Under the bonnet it uses L<B::Deparse> to turn your code-ref into text, L<PadWalker>'s C<peek_my()> to get variables, and L<Data::Dumper> (and C<$Data::Dumper::Deparse>) to turn those variables into text, all of which is pre-pended to your code.
+Under the bonnet it uses L<B::Deparse> to turn your code-ref into text,
+L<PadWalker>'s C<peek_my()> to get variables, and L<Data::Dumper> (and
+C<$Data::Dumper::Deparse>) to turn those variables into text, all of which is
+pre-pended to your code.
 
 =head1 CAVEATS
 
-Your code will always have C<strict> and C<warnings> turned on, and be run with taint-checking enabled. If you need to you can turn tainting off as shown in the synopsis. Note that you can't just say 'no tainting', the C<eval> is required, otherwise C<no>, just like C<use>, will be run at compile-time I<in the calling code> and not in the child process where you need it.
+Your code will always have C<strict> and C<warnings> turned on, and be run with
+taint-checking enabled. If you need to you can turn tainting off as shown in
+the synopsis. Note that you can't just say 'no tainting', the C<eval> is
+required, otherwise C<no>, just like C<use>, will be run at compile-time I<in
+the calling code> and not in the child process where you need it.
 
-If your code needs to C<use> any modules, or any subroutines that are imported, you will need to say so inside the code-ref you pass. And again, remember that you'll have to C<eval> any C<use> statements.
+If your code needs to C<use> any modules, or any subroutines that are imported,
+you will need to say so inside the code-ref you pass. And again, remember that
+you'll have to C<eval> any C<use> statements.
 
-The variables that are passed through to your code are read-write, but any changes you make are local to the child process so will not be communicated back to the parent process.
+The variables that are passed through to your code are read-write, but any
+changes you make are local to the child process so will not be communicated
+back to the parent process.
 
-Any blessed references, tied variables, or objects that use C<overload> in those variables may not behave as you expect.  For example, a record that has been read from a database won't have an active database connection; something tied to a filehandle won't have an open filehandle; an object that uses C<overload> to make reading its value have side-effects will not have those side-effects respected in the parent process.  In general, you should use this to "promote" as little of your code as possible to run as root, and I<only> your code so that you can be as aware as possible of the preceding.
+Any blessed references, tied variables, or objects that use C<overload> in
+those variables may not behave as you expect.  For example, a record that has
+been read from a database won't have an active database connection; something
+tied to a filehandle won't have an open filehandle; an object that uses
+C<overload> to make reading its value have side-effects will not have those
+side-effects respected in the parent process.  In general, you should use this
+to "promote" as little of your code as possible to run as root, and I<only>
+your code so that you can be as aware as possible of the preceding.
 
 =head1 DEBUGGING
 
-If your code isn't behaving as you expect or is dieing then I recommend that you set UNIX_SUDO_SPILLGUTS=1 in your environment. This will cause Unix::Sudo to C<warn()> you about what it is about to execute before it does so.
+If your code isn't behaving as you expect or is dieing then I recommend that
+you set UNIX_SUDO_SPILLGUTS=1 in your environment. This will cause Unix::Sudo
+to C<warn()> you about what it is about to execute before it does so.
 
 =head1 SECURITY CONCERNS
 
-This code will run potentially user-supplied code as root. I have done what I can to avoid security hilarity, but if you allow someone to pass C<rm -rf /*> that's your problem.
+This code will run potentially user-supplied code as root. I have done what I
+can to avoid security hilarity, but if you allow someone to pass C<rm -rf /*>
+that's your problem.
 
 I have mitigated potential problems by:
 
@@ -99,21 +133,29 @@ I have mitigated potential problems by:
 
 =item using the LIST form of C<system>
 
-It shouldn't be possible to craft input that makes my code run your code as root and then make my code run something else as root.
+It shouldn't be possible to craft input that makes my code run your code as
+root and then make my code run something else as root.
 
-It is of course still possible to make my code run your code as root and for your code to then run other stuff as root.
+It is of course still possible to make my code run your code as root and for
+your code to then run other stuff as root.
 
 =item tainting is turned on
 
-That means that any input to your code from the outside world is internally marked as being untrusted, and you are restricted in what you can do with it.  You can of course circumvent this by untainting, either in the usual regexy ways or as noted above via C<no tainting>.
+That means that any input to your code from the outside world is internally
+marked as being untrusted, and you are restricted in what you can do with it.
+You can of course circumvent this by untainting, either in the usual regexy
+ways or as noted above via C<no tainting>.
 
 =back
 
-I strongly recommend that you read and understand the source code and also read L<perlsec> before using this code.
+I strongly recommend that you read and understand the source code and also read
+L<perlsec> before using this code.
 
 =head1 BUGS/FEEDBACK
 
-Please report bugs by at L<https://github.com/DrHyde/perl-modules-Unix-Sudo/issues>, including, if possible, a test case.
+Please report bugs at
+L<https://github.com/DrHyde/perl-modules-Unix-Sudo/issues>, including, if
+possible, a test case.
 
 =head1 SOURCE CODE REPOSITORY
 
@@ -123,7 +165,10 @@ L<git://github.com/DrHyde/perl-modules-Unix-Sudo.git>
 
 Copyright 2019 David Cantrell E<lt>F<david@cantrell.org.uk>E<gt>
 
-This software is free-as-in-speech software, and may be used, distributed, and modified under the terms of either the GNU General Public Licence version 2 or the Artistic Licence.  It's up to you which one you use.  The full text of the licences can be found in the files GPL2.txt and ARTISTIC.txt, respectively.
+This software is free-as-in-speech software, and may be used, distributed, and
+modified under the terms of either the GNU General Public Licence version 2 or
+the Artistic Licence.  It's up to you which one you use.  The full text of the
+licences can be found in the files GPL2.txt and ARTISTIC.txt, respectively.
 
 =head1 CONSPIRACY
 
@@ -155,8 +200,6 @@ sub sudo(&) {
                 ref($value) eq 'REF' &&
                 ref(${$value}) eq 'CODE'
             ) {
-                # save this for last in case it references variables
-                # that we haven't seen yet
                 $code .= "$variable = sub ".
                     $deparse->coderef2text(${$value}).
                     ";\n";
