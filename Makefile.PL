@@ -1,3 +1,5 @@
+use lib qw(inc); use Devel::AssertOS qw(Unix);
+
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
