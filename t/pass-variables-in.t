@@ -4,19 +4,10 @@ use Test::More;
 
 use Unix::Sudo qw(sudo);
 
-SKIP: {
-    skip "You must not be running as root", 1
-        if($> == 0);
+use lib 't/lib';
+use sudosanity;
 
-    my $sudo_works = !system(
-        "sudo", "-p",
-        "The tests for Unix::Sudo need your password. They'll run 'whoami'\n".
-        "  and some perl code as root: ",
-        "true"
-    );
-    skip "Your sudo doesn't work", 1
-        unless($sudo_works);
-
+sudosanity::checks && do {
     my $scalar = 'foo';
     my %hash   = (
         scalar => 11,
@@ -47,6 +38,6 @@ SKIP: {
     };
 
     is(sudo { $code->() }, 11, "Can read variables from the parent context");
-}
+};
 
 END { done_testing }

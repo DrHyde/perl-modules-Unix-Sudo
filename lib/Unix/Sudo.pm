@@ -151,6 +151,17 @@ ways or as noted above via C<no tainting>.
 I strongly recommend that you read and understand the source code and also read
 L<perlsec> before using this code.
 
+=head1 STABILITY
+
+I make no promises about the stability of the interface, and it is subject to
+change without notice. This is because I want to strongly encourage you to
+read the documentation and the source code before installing new versions of
+this code.
+
+I also therefore urge you that if you use this module in anything important
+you should "pin" it to a particular version number in whatever you use for
+managing your dependencies.
+
 =head1 BUGS/FEEDBACK
 
 Please report bugs at
@@ -207,7 +218,7 @@ sub sudo(&) {
                 $code .= "$variable = \${ scalar do { my ".Dumper($value)."}};\n"
             }
         } else {
-            die("Sorry, ".__PACKAGE__." can't cope with sigil '".
+            die("Sorry, Unix::Sudo can't cope with sigil '".
                 substr($variable, 0, 1).
                 "'\n");
         }
