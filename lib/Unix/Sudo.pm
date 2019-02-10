@@ -11,8 +11,6 @@ our @EXPORT_OK = qw(sudo);
 
 use B::Deparse;
 use Data::Dumper;
-    $Data::Dumper::Deparse = 1;
-    $Data::Dumper::Indent  = 0;
 use PadWalker qw(peek_my);
 use Probe::Perl;
 
@@ -200,6 +198,9 @@ sub sudo(&) {
     }
     # now give them their values
     foreach my $variable (keys %{$context}) {
+        local $Data::Dumper::Deparse = 1;
+        local $Data::Dumper::Indent  = 0;
+
         my $value = $context->{$variable};
 
         if(substr($variable, 0, 1) eq '%') {
