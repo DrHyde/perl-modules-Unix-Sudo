@@ -42,3 +42,5 @@ inc/Devel/AssertOS/SysVr5.pm
 inc/Devel/AssertOS/Unix.pm
 inc/Devel/AssertOS/Minix.pm
 inc/Devel/AssertOS/AIX.pm
+t/dont-mess-with-globals.t
+t/lib/sudosanity.pm
