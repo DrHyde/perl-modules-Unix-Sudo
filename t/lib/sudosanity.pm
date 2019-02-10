@@ -12,8 +12,8 @@ sub checks {
     
         my $sudo_works = !system(
             "sudo", "-p",
-            "The tests for Unix::Sudo need your password. They'll run 'whoami'\n".
-            "  and some perl code as root: ",
+            "\nThe tests for Unix::Sudo need your password. They'll run 'whoami',\n".
+            "  'true', and some perl code as root: ",
             "true"
         );
         skip "Your sudo doesn't work", 1
