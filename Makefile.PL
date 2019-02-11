@@ -15,6 +15,7 @@ WriteMakefile(
   PREREQ_PM    => {
     'B::Deparse'     => 0,
     'Capture::Tiny', => 0,
+    'Data::Compare'  => 0,
     'Data::Dumper'   => 0,
     'PadWalker'      => 0,
     'Probe::Perl',   => 0,
