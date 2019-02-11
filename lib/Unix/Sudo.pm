@@ -3,7 +3,7 @@ package Unix::Sudo;
 use strict;
 use warnings;
 
-our $VERSION = '1';
+our $VERSION = '2';
 
 require Exporter;
 our @ISA = qw(Exporter);
