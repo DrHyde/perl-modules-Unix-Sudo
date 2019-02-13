@@ -13,7 +13,7 @@ perl:
   - "5.26"
   - "5.28"
 script:
-  - perl Makefile.PL && HARNESS_OPTIONS=j9 sudo -E make test
+  - perl Makefile.PL && sudo -E make test
 matrix:
   include:
     - perl: 5.20
