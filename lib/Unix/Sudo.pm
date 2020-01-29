@@ -16,7 +16,7 @@ use Probe::Perl;
 
 =head1 NAME
 
-Unix::Sudo
+Unix::Sudo - Run a block of code as root
 
 =head1 DESCRIPTION
 
