@@ -8,7 +8,7 @@ task:
     - cpanm --installdeps .
     - perl Makefile.PL
     - make
-    - sudo -E make test
+    - make test
 
 task:
   name: MacOS
@@ -19,4 +19,4 @@ task:
     - /Users/anka/perl5/bin/cpanm -v --installdeps .
     - export PERL5LIB=/Users/anka/perl5/lib/perl5
     - perl Makefile.PL verbose
-    - sudo prove -vl -I /Users/anka/perl5/lib/perl5 t/*.t
+    - make test
