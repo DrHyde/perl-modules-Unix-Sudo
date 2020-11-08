@@ -20,4 +20,4 @@ sudosanity::checks && do {
     is($stdout, 'root', "ran 'whoami' as root");
 };
 
-END { done_testing }
+done_testing();
