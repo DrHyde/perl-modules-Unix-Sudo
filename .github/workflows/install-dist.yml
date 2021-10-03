@@ -32,6 +32,7 @@ jobs:
         run: |
           # cpanm ExtUtils::MakeMaker Test::Pod Test::Pod::Coverage || cat /home/runner/.cpanm/work/*/build.log
           # perl -Mparent -e0 || cpanm parent
+          apt update && apt install sudo # this shouldn't be necessary!
           sudo true
           cpanm *.tar.gz || cat /github/home/.cpanm/work/*/build.log
   install-openbsd:
