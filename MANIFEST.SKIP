@@ -1,4 +1,2 @@
-.cirrus.yml
-.travis.yml
-.git
-.gitignore
+^.git
+^workflow-templates
