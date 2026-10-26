@@ -20,8 +20,10 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
   NAME         => 'Unix::Sudo',
-    META_MERGE => {
+    META_ADD => {
         license => 'open_source',
+},
+META_MERGE => {
         resources => {
             repository => 'https://github.com/DrHyde/perl-modules-Unix-Sudo',
             bugtracker => 'https://github.com/DrHyde/perl-modules-Unix-Sudo/issues'
